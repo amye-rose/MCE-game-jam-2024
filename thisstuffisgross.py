@@ -2,20 +2,20 @@ import pygame
 pygame.init()
 
 WIDTH = 1000
-HEIGHT = 1000
+HEIGHT = 500
 
-VELOCITY = 5
+VELOCITY = 1
 
 win = pygame.display.set_mode((WIDTH,HEIGHT))
 
-block = pygame.image.load('img/tile.png')
+block = pygame.image.load('Images/Depression.jpg')
 
 tileSize = 100
 
 class Player():
     def __init__(self,x,y):
 
-        char = pygame.image.load('img/fire.png')
+        char = pygame.image.load('Images/fire.png')
         self.image = pygame.transform.scale(char, (40,40))
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -42,7 +42,7 @@ class World():
     def __init__(self,data):
         self.tileList = []
 
-        block = pygame.image.load('img/tile.png')
+        block = pygame.image.load('Images/Depression.jpg')
 
         rowTotal = 0
         for row in data:
@@ -61,13 +61,19 @@ class World():
     def draw(self):
         for tile in self.tileList:
             win.blit(tile[0],tile[1])
+    
+    def collisionCheck(self, player):
+        for tile in self.tileList:
+            if player.rect.colliderect(tile[1]): # Check for collision between player and tile
+                return True
+        return False
 
 worldData = [
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1],
     [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,1,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
@@ -81,9 +87,13 @@ world = World(worldData)
 run = True
 while run:
 
+    win.fill((0,0,0))
     world.draw()
     player.draw()
     player.control()
+
+    if world.collisionCheck(player): # Check for collision
+        run = False # End the game loop if collision detected
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

@@ -5,7 +5,7 @@ pygame.init()
 win = pygame.display.set_mode((500,500))
 
 # This loads the image that's used for the character sprite
-char = pygame.image.load('img/fire.png')
+char = pygame.image.load('Images/fire.png')
 
 # Class that hold all the variables for player's coordinates and character other character information
 class Player(object):
