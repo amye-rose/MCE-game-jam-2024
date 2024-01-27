@@ -1,18 +1,12 @@
 # Controls kind of work and collison works
 import time
+from world import *
 
 import pygame
 pygame.init()
 
-HEIGHT = 500
-WIDTH = 500
-
-TILE_SIZE = 50
-
 clock = pygame.time.Clock()
 FPS = 60
-
-win = pygame.display.set_mode((WIDTH,HEIGHT))
 
 class Player():
     def __init__(self, x, y):
@@ -44,25 +38,33 @@ class Player():
                 self.direction = True
             dx += 5
 
-        self.vel_y += 1
+        self.vel_y += 0.8
         if self.vel_y > 10:
              self.vel_y = 10
         dy += self.vel_y
 
+        on_ground = False
+
         for tile in world.tileList:
              if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                   dx = 0
-             if tile[1].colliderect(self.rect.x,self.rect.y,self.width,self.height):
+             if tile[1].colliderect(self.rect.x,self.rect.y+dy,self.width,self.height):
                 if self.vel_y < 0:
                   dy = tile[1].bottom - self.rect.top
-                  self.vel_y = 0
                 elif self.vel_y >= 0:
                   dy = tile[1].top - self.rect.bottom
+                  on_ground = True
+                  self.jumped = 0
                   self.vel_y = 0
-                self.jumped = 0
 
         self.rect.x += dx
         self.rect.y += dy
+
+        if on_ground:
+            for tile in world.tileList:
+                if tile[1].colliderect(self.rect.x, self.rect.y + 1, self.width, self.height):
+                    self.rect.y = tile[1].top - self.height
+                    break
         
         if self.rect.bottom > HEIGHT:
              self.rect.bottom = HEIGHT
@@ -75,31 +77,6 @@ class Player():
         self.image = pygame.image.load(img)
         self.image = pygame.transform.scale(self.image, (40, 40))
 
-class World():
-    def __init__(self,data):
-        self.tileList = []
-
-        dirt = pygame.image.load('img/dirt.png')
-
-        rowCount = 0
-        for row in data:
-            columnCount = 0
-            for tile in row:
-                if tile == 1:
-                    img = pygame.transform.scale(dirt,(TILE_SIZE,TILE_SIZE))
-                    imgRect = img.get_rect()
-                    imgRect.x = columnCount * TILE_SIZE
-                    imgRect.y = rowCount * TILE_SIZE
-                    tile = (img, imgRect)
-                    self.tileList.append(tile)
-                columnCount += 1
-            rowCount += 1
-        
-    def draw(self):
-        win.fill((255,255,255))
-        for tile in self.tileList:
-            win.blit(tile[0],tile[1])
-
 """
 def drawGrid():
 	for line in range(0, 10):
@@ -107,20 +84,7 @@ def drawGrid():
 		pygame.draw.line(win, (255, 255, 255), (line * TILE_SIZE, 0), (line * TILE_SIZE, HEIGHT))
 """
 
-worldData = [
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,1,0,0,1],
-    [1,0,0,0,0,0,1,0,0,1],
-    [1,0,0,0,0,0,1,0,0,1],
-    [1,0,0,0,0,0,1,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1],
-]
-
-world = World(worldData)
+world = World(world1Data)
 player = Player(100, HEIGHT)
 playersize = ''
 
