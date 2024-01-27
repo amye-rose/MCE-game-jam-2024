@@ -93,8 +93,11 @@ while run:
     player.control()
 
     if world.collisionCheck(player): # Check for collision
-        run = False # End the game loop if collision detected
-
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]:
+            player.rect.x += VELOCITY
+        if keys[pygame.K_RIGHT]:
+            player.rect.x -= VELOCITY
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
