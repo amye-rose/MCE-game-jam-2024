@@ -1,3 +1,5 @@
+# Controls kind of work and collison works
+
 import pygame
 pygame.init()
 
