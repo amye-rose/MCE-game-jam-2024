@@ -1,69 +1,152 @@
+# Controls kind of work and collison works
+import time
+
 import pygame
 pygame.init()
 
-# Creates the window the game will be played in
-win = pygame.display.set_mode((500,500))
+HEIGHT = 500
+WIDTH = 500
 
-# This loads the image that's used for the character sprite
-char = pygame.image.load('Images/fire.png')
+TILE_SIZE = 50
 
-# Class that hold all the variables for player's coordinates and character other character information
-class Player(object):
-    def __init__(self,x,y,width,height):
-        # I'm leaving out information regarding whether the character is facing left or right, because I'm not sure
-        # If we're doing walk cycle animations or not
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.velocity = 5
-        self.isJump = False
-        self.jumpCount = 10
+clock = pygame.time.Clock()
+FPS = 60
 
-    def draw(win):
-        win.blit(char,(player.x,player.y))
+win = pygame.display.set_mode((WIDTH,HEIGHT))
 
-def redrawGameWindow():
-    win.fill((0,0,0))
-    win.blit(char,(player.x,player.y))
-    pygame.display.update()
+class Player():
+    def __init__(self, x, y):
+        img = pygame.image.load('img/fire.png')
+        self.image = pygame.transform.scale(img, (40, 40))
+        self.imgRef = 'img/fire'
+        self.direction = True
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.vel_y = 0
+        self.jumped = 0
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
 
-# This calls the "Player" class and basically just creates an instance of our character 
-# So we can use the variables stored in the class
-player = Player(300,410,64,64)
+    def update(self):
+        dx = 0
+        dy = 0
+
+        key = pygame.key.get_pressed()
+        if key[pygame.K_LEFT]:
+            if self.direction:
+                self.setImg('%sL%s.png' %(self.imgRef[:8:],self.imgRef[8:]))
+                self.direction = False
+            dx -= 5
+        if key[pygame.K_RIGHT]:
+            if self.direction == False:
+                self.setImg('%s%s.png' %(self.imgRef[:8:],self.imgRef[9:]))
+                self.direction = True
+            dx += 5
+
+        self.vel_y += 1
+        if self.vel_y > 10:
+             self.vel_y = 10
+        dy += self.vel_y
+
+        for tile in world.tileList:
+             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                  dx = 0
+             if tile[1].colliderect(self.rect.x,self.rect.y,self.width,self.height):
+                if self.vel_y < 0:
+                  dy = tile[1].bottom - self.rect.top
+                  self.vel_y = 0
+                elif self.vel_y >= 0:
+                  dy = tile[1].top - self.rect.bottom
+                  self.vel_y = 0
+                self.jumped = 0
+
+        self.rect.x += dx
+        self.rect.y += dy
+        
+        if self.rect.bottom > HEIGHT:
+             self.rect.bottom = HEIGHT
+             dy = 0
+
+        win.blit(self.image,self.rect)
+    
+    def setImg(self, img):
+        self.imgRef = img[:-4:]
+        self.image = pygame.image.load(img)
+        self.image = pygame.transform.scale(self.image, (40, 40))
+
+class World():
+    def __init__(self,data):
+        self.tileList = []
+
+        dirt = pygame.image.load('img/dirt.png')
+
+        rowCount = 0
+        for row in data:
+            columnCount = 0
+            for tile in row:
+                if tile == 1:
+                    img = pygame.transform.scale(dirt,(TILE_SIZE,TILE_SIZE))
+                    imgRect = img.get_rect()
+                    imgRect.x = columnCount * TILE_SIZE
+                    imgRect.y = rowCount * TILE_SIZE
+                    tile = (img, imgRect)
+                    self.tileList.append(tile)
+                columnCount += 1
+            rowCount += 1
+        
+    def draw(self):
+        win.fill((255,255,255))
+        for tile in self.tileList:
+            win.blit(tile[0],tile[1])
+
+"""
+def drawGrid():
+	for line in range(0, 10):
+		pygame.draw.line(win, (255, 255, 255), (0, line * TILE_SIZE), (WIDTH, line * TILE_SIZE))
+		pygame.draw.line(win, (255, 255, 255), (line * TILE_SIZE, 0), (line * TILE_SIZE, HEIGHT))
+"""
+
+worldData = [
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,1,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1],
+]
+
+world = World(worldData)
+player = Player(100, HEIGHT)
+playersize = ''
+
 run = True
-# While "run" is True, this loop will be active and the game will run
 while run:
-    pygame.time.delay(50)
-    # Checks if the game has been quit out of, and if it has, sets "run" to False and ends the loop
+
+    clock.tick(FPS)
+
+    # drawGrid()
+    world.draw()
+    player.update()
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                if player.jumped < 2:
+                    player.vel_y -= 15
+                    player.jumped += 1
+            if event.key == pygame.K_SPACE:
+                if playersize != 'SS':
+                    player.setImg('%sS.png' %player.imgRef)
+                    playersize = playersize + 'S'
+        #on_event(event)
 
-    keys = pygame.key.get_pressed()
-
-    # These control horizontal movement
-    if keys[pygame.K_LEFT]:
-        player.x -= player.velocity
-    if keys[pygame.K_RIGHT]:
-        player.x += player.velocity
-
-    # Checks is "isJump" is False, and if the spacebar is pressed, sets that value to True
-    if not (player.isJump):
-        if keys[pygame.K_SPACE]:
-            player.isJump = True
-    else:
-        # I'll explain how this works later, but basically this is what happens when "isJump" is True
-        if player.jumpCount >= -10:
-            neg = 1
-            if player.jumpCount < 0:
-                neg = -1
-            player.y -= (player.jumpCount ** 2) * 0.5 * neg
-            player.jumpCount -= 1
-        else:
-            player.isJump = False
-            player.jumpCount = 10
-
-    redrawGameWindow()
+    pygame.display.update()
 
 pygame.quit()
