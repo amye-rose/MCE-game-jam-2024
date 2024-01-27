@@ -1,4 +1,5 @@
 # Controls kind of work and collison works
+import time
 
 import pygame
 pygame.init()
@@ -17,11 +18,13 @@ class Player():
     def __init__(self, x, y):
         img = pygame.image.load('img/fire.png')
         self.image = pygame.transform.scale(img, (40, 40))
+        self.imgRef = 'img/fire'
+        self.direction = True
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.vel_y = 0
-        self.jumped = False
+        self.jumped = 0
         self.width = self.image.get_width()
         self.height = self.image.get_height()
 
@@ -30,15 +33,16 @@ class Player():
         dy = 0
 
         key = pygame.key.get_pressed()
-        if key[pygame.K_SPACE] and self.jumped == False:
-            self.vel_y = -15
-            self.jumped = True
-        if key[pygame.K_SPACE] == False:
-             self.jumped = False
         if key[pygame.K_LEFT]:
-             dx -= 5
+            if self.direction:
+                self.setImg('%sL%s.png' %(self.imgRef[:8:],self.imgRef[8:]))
+                self.direction = False
+            dx -= 5
         if key[pygame.K_RIGHT]:
-             dx += 5
+            if self.direction == False:
+                self.setImg('%s%s.png' %(self.imgRef[:8:],self.imgRef[9:]))
+                self.direction = True
+            dx += 5
 
         self.vel_y += 1
         if self.vel_y > 10:
@@ -55,6 +59,7 @@ class Player():
                 elif self.vel_y >= 0:
                   dy = tile[1].top - self.rect.bottom
                   self.vel_y = 0
+                self.jumped = 0
 
         self.rect.x += dx
         self.rect.y += dy
@@ -64,6 +69,11 @@ class Player():
              dy = 0
 
         win.blit(self.image,self.rect)
+    
+    def setImg(self, img):
+        self.imgRef = img[:-4:]
+        self.image = pygame.image.load(img)
+        self.image = pygame.transform.scale(self.image, (40, 40))
 
 class World():
     def __init__(self,data):
@@ -101,17 +111,18 @@ worldData = [
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,1,0,0,0],
-    [0,0,0,0,0,0,1,0,0,0],
-    [0,0,0,0,0,0,1,0,0,0],
-    [0,0,0,0,0,0,1,0,0,0],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,1,0,0,1],
+    [1,0,0,0,0,0,1,0,0,1],
     [1,1,1,1,1,1,1,1,1,1],
 ]
 
 world = World(worldData)
 player = Player(100, HEIGHT)
+playersize = ''
 
 run = True
 while run:
@@ -125,6 +136,16 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                if player.jumped < 2:
+                    player.vel_y -= 15
+                    player.jumped += 1
+            if event.key == pygame.K_SPACE:
+                if playersize != 'SS':
+                    player.setImg('%sS.png' %player.imgRef)
+                    playersize = playersize + 'S'
+        #on_event(event)
 
     pygame.display.update()
 
