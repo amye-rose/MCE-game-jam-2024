@@ -1,4 +1,5 @@
 import pygame
+import time
 
 TILE_SIZE = 50
 
@@ -6,11 +7,16 @@ HEIGHT = 500
 WIDTH = 1500
 
 win = pygame.display.set_mode((WIDTH,HEIGHT))
-windowCaption = pygame.display.set_caption("Fire Boy")
+windowCaption = pygame.display.set_caption("Level 1")
 
 class World():
-    def __init__(self,data):
+    def __init__(self,data,worldNum=1):
         self.tileList = []
+        self.worldNum = worldNum
+        if self.worldNum == 2:
+            self.ending = True
+        else:
+            self.ending = False
 
         self.goal = None
 
@@ -45,7 +51,16 @@ class World():
             win.blit(tile[0],tile[1])
     
     def getGoal(self):
-        return self.goal 
+        return self.goal
+
+    def nextWorld(self):
+        if self.worldNum == 1:
+            windowCaption = pygame.display.set_caption("Level 2")
+            return World(world2Data,2)
+        if self.worldNum == 2:
+            return World(world2Data,2)
+        time.sleep(0.01)
+
 
 world1Data = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
@@ -60,4 +75,16 @@ world1Data = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 ]
     
+world2Data = [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+    [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+    [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+    [1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,2,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+]
     

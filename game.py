@@ -81,6 +81,12 @@ class Player():
         self.imgRef = img[:-4:]
         self.image = pygame.image.load(img)
         self.image = pygame.transform.scale(self.image, (40, 40))
+    
+    def sendPlayer(self,x,y):
+        self.rect.x = x
+        self.rect.y = y
+        self.vel_y = 0
+        self.jumped = 0
 
 """
 def drawGrid():
@@ -117,7 +123,11 @@ while run:
         #on_event(event)
     
     if player.hitGoal:
-        run = False
+        if world.ending:
+            run = False
+        player.hitGoal = False
+        world = world.nextWorld()
+        player.sendPlayer(100, HEIGHT)
 
     pygame.display.update()
 
