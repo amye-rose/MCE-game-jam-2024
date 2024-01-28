@@ -75,7 +75,9 @@ class Player():
              self.rect.bottom = HEIGHT
              dy = 0
 
+        dark = pygame.image.load('img/dark1.png')
         win.blit(self.image,self.rect)
+        win.blit(dark,(self.rect.x-1480,self.rect.y-1480))
     
     def setImg(self, img):
         self.imgRef = img[:-4:]
