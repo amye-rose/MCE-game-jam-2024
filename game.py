@@ -6,12 +6,14 @@ import pygame
 pygame.init()
 
 clock = pygame.time.Clock()
-FPS = 60
+FPS = 30
 
 class Player():
     def __init__(self, x, y):
         img = pygame.image.load('img/fire.png')
         self.image = pygame.transform.scale(img, (40, 40))
+        self.darkRef = 'img/dark'
+        self.dark = pygame.image.load('%s.png' %self.darkRef)
         self.imgRef = 'img/fire'
         self.direction = True
         self.hitGoal = False
@@ -22,6 +24,7 @@ class Player():
         self.jumped = 0
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+        self.darkGo = True
 
     def update(self):
         dx = 0
@@ -46,20 +49,27 @@ class Player():
 
         on_ground = False
 
-        for tile in world.tileList:
-            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+        for tile in range(len(world.tileList)):
+            if world.tileList[tile][1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
-                if tile[0] == world.getGoal():
+                if world.tileList[tile][0] == world.getGoal():
+                    campfire = pygame.image.load('img/campfireLit.png')
+                    campfireimg = pygame.transform.scale(campfire,(TILE_SIZE,TILE_SIZE))
+                    imgRect = campfireimg.get_rect()
+                    imgRect.x = world.goalColumn * TILE_SIZE
+                    imgRect.y = world.goalRow * TILE_SIZE
+                    world.tileList[tile] = (campfireimg, imgRect)
+                    player.darkGo = False
                     self.hitGoal = True
-            if tile[1].colliderect(self.rect.x,self.rect.y+dy,self.width,self.height):
+            if world.tileList[tile][1].colliderect(self.rect.x,self.rect.y+dy,self.width,self.height):
                 if self.vel_y < 0:
-                  dy = tile[1].bottom - self.rect.top
+                  dy = world.tileList[tile][1].bottom - self.rect.top
                 elif self.vel_y >= 0:
-                  dy = tile[1].top - self.rect.bottom
+                  dy = world.tileList[tile][1].top - self.rect.bottom
                   on_ground = True
                   self.jumped = 0
                   self.vel_y = 0
-                if tile[0] == world.getGoal():
+                if world.tileList[tile][0] == world.getGoal():
                     self.hitGoal = True
 
         self.rect.x += dx
@@ -75,9 +85,12 @@ class Player():
              self.rect.bottom = HEIGHT
              dy = 0
 
-        dark = pygame.image.load('img/dark1.png')
-        win.blit(self.image,self.rect)
-        win.blit(dark,(self.rect.x-1480,self.rect.y-1480))
+        if self.darkGo:
+            win.blit(self.image,self.rect)
+            win.blit(self.dark,(self.rect.x-1480,self.rect.y-1480))
+        if self.darkGo == False:
+            win.blit(self.image,self.rect)
+
     
     def setImg(self, img):
         self.imgRef = img[:-4:]
@@ -119,10 +132,13 @@ while run:
                 if playersize != 'SS':
                     player.setImg('%sS.png' %player.imgRef)
                     playersize = playersize + 'S'
+                    player.darkRef = '%sS' %player.darkRef
+                    player.dark = pygame.image.load('%s.png' %player.darkRef)
         #on_event(event)
     
     if player.hitGoal:
-        run = False
+        pass
+
 
     pygame.display.update()
 
