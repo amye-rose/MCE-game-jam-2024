@@ -25,6 +25,7 @@ class Player():
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.darkGo = True
+        self.sleep = False
 
     def update(self):
         dx = 0
@@ -42,10 +43,16 @@ class Player():
                 self.direction = True
             dx += 5
 
-        self.vel_y += 0.8
-        if self.vel_y > 10:
-             self.vel_y = 10
-        dy += self.vel_y
+        if self.rect.bottom >= HEIGHT:  # Player is on the ground
+            self.vel_y = 0  # Reset vertical velocity
+
+            if key[pygame.K_UP]:  # Only allow jumping when on the ground
+                self.vel_y -= 15
+                self.jumped = 1  # Set jumped flag
+
+        else:  # Player is in the air
+            self.vel_y += 0.8  # Apply gravity
+            dy += self.vel_y  # Move player vertically
 
         on_ground = False
 
@@ -60,6 +67,7 @@ class Player():
                     imgRect.y = world.goalRow * TILE_SIZE
                     world.tileList[tile] = (campfireimg, imgRect)
                     player.darkGo = False
+                    self.sleep = True
                     self.hitGoal = True
             if world.tileList[tile][1].colliderect(self.rect.x,self.rect.y+dy,self.width,self.height):
                 if self.vel_y < 0:
@@ -70,6 +78,14 @@ class Player():
                   self.jumped = 0
                   self.vel_y = 0
                 if world.tileList[tile][0] == world.getGoal():
+                    campfire = pygame.image.load('img/campfireLit.png')
+                    campfireimg = pygame.transform.scale(campfire,(TILE_SIZE,TILE_SIZE))
+                    imgRect = campfireimg.get_rect()
+                    imgRect.x = world.goalColumn * TILE_SIZE
+                    imgRect.y = world.goalRow * TILE_SIZE
+                    world.tileList[tile] = (campfireimg, imgRect)
+                    player.darkGo = False
+                    self.sleep = True
                     self.hitGoal = True
 
         self.rect.x += dx
@@ -141,16 +157,16 @@ while run:
                     player.darkRef = '%sS' %player.darkRef
                     player.dark = pygame.image.load('%s.png' %player.darkRef)
         #on_event(event)
-    
-    if player.hitGoal:
-        #if world.ending:
-        #    run = False
-        #player.hitGoal = False
-        #player.darkRef = 'img/dark'
-        #player.dark = pygame.image.load('%s.png' %player.darkRef)
-        #world = world.nextWorld() 
-        #player.sendPlayer(100, HEIGHT)
-        pass
+
+        if player.hitGoal:
+            if world.ending:
+                run = False
+            player.hitGoal = False
+            world = world.nextWorld() 
+            player.sendPlayer(100, HEIGHT)
+            player.darkGo = True
+            player.darkRef = 'img/dark'
+            player.dark = pygame.image.load('%s.png' %player.darkRef)
 
 
     pygame.display.update()

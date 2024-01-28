@@ -61,6 +61,8 @@ class World():
         return self.goal
     
     def nextWorld(self):
+        pygame.event.wait(99999999)
+        pygame.event.wait(99999999)
         if self.worldNum == 1:
             windowCaption = pygame.display.set_caption("Level 2")
             return World(world2Data,2)
