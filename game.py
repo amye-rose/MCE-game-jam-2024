@@ -97,6 +97,12 @@ class Player():
         self.image = pygame.image.load(img)
         self.image = pygame.transform.scale(self.image, (40, 40))
 
+    def sendPlayer(self,x,y): 
+        self.rect.x = x 
+        self.rect.y = y 
+        self.vel_y = 0 
+        self.jumped = 0 
+
 """
 def drawGrid():
 	for line in range(0, 10):
@@ -125,7 +131,7 @@ while run:
             run = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
-                if player.jumped < 2:
+                if player.jumped < 1:
                     player.vel_y -= 15
                     player.jumped += 1
             if event.key == pygame.K_SPACE:
@@ -137,6 +143,13 @@ while run:
         #on_event(event)
     
     if player.hitGoal:
+        #if world.ending:
+        #    run = False
+        #player.hitGoal = False
+        #player.darkRef = 'img/dark'
+        #player.dark = pygame.image.load('%s.png' %player.darkRef)
+        #world = world.nextWorld() 
+        #player.sendPlayer(100, HEIGHT)
         pass
 
 
