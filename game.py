@@ -93,12 +93,15 @@ world = World(world1Data)
 player = Player(100, HEIGHT)
 playersize = ''
 
+bg = pygame.image.load('img/bg2.png')
+bg_scaled = pygame.transform.scale(bg,(1500,500))
+
 run = True
 while run:
 
     clock.tick(FPS)
 
-    # drawGrid()
+    win.blit(bg_scaled,(0,0))
     world.draw()
     player.update()
 
