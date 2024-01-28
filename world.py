@@ -14,7 +14,7 @@ class World():
 
         self.goal = None
 
-        dirt = pygame.image.load('img/dirt.png')
+        brick = pygame.image.load('img/brick.png')
         campfire = pygame.image.load('img/campfire.png')
 
         rowCount = 0
@@ -22,7 +22,7 @@ class World():
             columnCount = 0
             for tile in row:
                 if tile == 1:
-                    img = pygame.transform.scale(dirt,(TILE_SIZE,TILE_SIZE))
+                    img = pygame.transform.scale(brick,(TILE_SIZE,TILE_SIZE))
                     imgRect = img.get_rect()
                     imgRect.x = columnCount * TILE_SIZE
                     imgRect.y = rowCount * TILE_SIZE
