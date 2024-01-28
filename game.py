@@ -14,6 +14,7 @@ class Player():
         self.image = pygame.transform.scale(img, (40, 40))
         self.imgRef = 'img/fire'
         self.direction = True
+        self.hitGoal = False
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -46,9 +47,11 @@ class Player():
         on_ground = False
 
         for tile in world.tileList:
-             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
-                  dx = 0
-             if tile[1].colliderect(self.rect.x,self.rect.y+dy,self.width,self.height):
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                dx = 0
+                if tile[0] == world.getGoal():
+                    self.hitGoal = True
+            if tile[1].colliderect(self.rect.x,self.rect.y+dy,self.width,self.height):
                 if self.vel_y < 0:
                   dy = tile[1].bottom - self.rect.top
                 elif self.vel_y >= 0:
@@ -56,6 +59,8 @@ class Player():
                   on_ground = True
                   self.jumped = 0
                   self.vel_y = 0
+                if tile[0] == world.getGoal():
+                    self.hitGoal = True
 
         self.rect.x += dx
         self.rect.y += dy
@@ -110,6 +115,9 @@ while run:
                     player.setImg('%sS.png' %player.imgRef)
                     playersize = playersize + 'S'
         #on_event(event)
+    
+    if player.hitGoal:
+        run = False
 
     pygame.display.update()
 
